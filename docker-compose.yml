@@ -1,0 +1,65 @@
+# docker-compose.yml
+# NVIDIA Canary-1B-v2 语音识别 API 服务编排配置
+# 
+# 功能说明:
+# - 启用 GPU 支持进行模型推理
+# - 挂载本地模型目录避免重复下载
+# - 配置模型超时卸载等环境变量
+
+version: '3.8'
+
+services:
+  canary-asr:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: canary-asr-api
+    
+    # 端口映射: 主机8000端口 -> 容器8000端口
+    ports:
+      - "8000:8000"
+    
+    # 环境变量配置
+    environment:
+      # 模型存储路径 (容器内路径)
+      - MODEL_PATH=/data/model
+      # 模型闲置超时时间 (秒), 超时后自动卸载释放显存
+      - MODEL_TIMEOUT_SEC=300
+      # Hugging Face 模型名称
+      - MODEL_NAME=nvidia/canary-1b-v2
+      # 是否使用 FP16 半精度推理
+      - USE_FP16=true
+      # API 服务端口
+      - API_PORT=8000
+      # 日志级别
+      - LOG_LEVEL=INFO
+    
+    # 挂载卷配置
+    volumes:
+      # 挂载本地模型目录到容器, 实现模型持久化存储
+      - ./models:/data/model
+    
+    # GPU 资源配置
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1  # 使用1块GPU, 可改为 "all" 使用全部GPU
+              capabilities: [gpu]
+    
+    # 容器重启策略
+    restart: unless-stopped
+    
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+# 网络配置 (可选)
+networks:
+  default:
+    name: canary-asr-network
