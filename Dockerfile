@@ -9,8 +9,10 @@ FROM pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime
 # 设置工作目录
 WORKDIR /app
 
-# 设置环境变量
-ENV PYTHONUNBUFFERED=1 \
+# 设置环境变量 - 添加非交互式和时区配置
+ENV DEBIAN_FRONTEND=noninteractive \
+    TZ=Asia/Shanghai \
+    PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
@@ -20,7 +22,10 @@ ENV PYTHONUNBUFFERED=1 \
 # - libsndfile1: 音频文件读取
 # - sox: 音频处理工具
 # - curl: 健康检查
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# 预配置时区避免交互式提示
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    tzdata \
     ffmpeg \
     libsndfile1 \
     sox \
@@ -32,10 +37,23 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # 复制依赖文件
 COPY requirements.txt .
 
-# 安装 Python 依赖
-# 注意: NeMo 安装需要较长时间, 请耐心等待
-RUN pip install --upgrade pip && \
-    pip install -r requirements.txt
+# 安装 Python 依赖 - 分层安装以优化缓存
+# 1. 先安装基础依赖
+RUN pip install --upgrade pip setuptools wheel && \
+    pip install --no-cache-dir \
+    fastapi>=0.104.0 \
+    uvicorn[standard]>=0.24.0 \
+    python-multipart>=0.0.6
+
+# 2. 安装音频处理库
+RUN pip install --no-cache-dir \
+    librosa>=0.10.0 \
+    soundfile>=0.12.0 \
+    pydub>=0.25.0 \
+    aiofiles>=23.0.0
+
+# 3. 最后安装 NeMo (最耗时的部分)
+RUN pip install --no-cache-dir nemo_toolkit[asr]>=2.0.0
 
 # 复制应用源码
 COPY src/ ./src/
