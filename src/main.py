@@ -77,7 +77,8 @@ async def lifespan(app: FastAPI):
     # 启动时执行
     setup_logging()
     logger.info("=== Canary ASR API 服务启动 ===")
-    logger.info(f"模型路径: {os.getenv('MODEL_PATH', '/data/model')}")
+    default_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "models")
+    logger.info(f"模型路径: {os.getenv('MODEL_PATH', default_path)}")
     logger.info(f"超时时间: {os.getenv('MODEL_TIMEOUT_SEC', '300')}秒")
     logger.info(f"FP16 模式: {os.getenv('USE_FP16', 'true')}")
     
@@ -299,7 +300,7 @@ async def create_transcription(
     ```python
     import requests
     
-    url = "http://localhost:8000/v1/audio/transcriptions"
+    url = "http://localhost:8909/v1/audio/transcriptions"
     files = {"file": open("audio.wav", "rb")}
     data = {"language": "en", "response_format": "json"}
     
@@ -435,7 +436,7 @@ async def create_translation(
 if __name__ == "__main__":
     import uvicorn
     
-    port = int(os.getenv("API_PORT", "8000"))
+    port = int(os.getenv("API_PORT", "8909"))
     
     uvicorn.run(
         "src.main:app",

@@ -59,7 +59,11 @@ class ModelManager:
             use_fp16: 是否使用 FP16 半精度推理
         """
         # 从环境变量读取配置, 参数优先
-        self.model_path = model_path or os.getenv("MODEL_PATH", "/data/model")
+        # 默认使用项目根目录下的 models 文件夹
+        default_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "models")
+        self.model_path = model_path or os.getenv("MODEL_PATH", default_path)
+        # 确保是绝对路径
+        self.model_path = os.path.abspath(self.model_path)
         self.model_name = model_name or os.getenv("MODEL_NAME", "nvidia/canary-1b-v2")
         self.timeout_sec = timeout_sec or int(os.getenv("MODEL_TIMEOUT_SEC", "300"))
         self.use_fp16 = use_fp16 if use_fp16 is not None else os.getenv("USE_FP16", "true").lower() == "true"

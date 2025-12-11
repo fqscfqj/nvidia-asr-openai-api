@@ -44,15 +44,15 @@ COPY src/ ./src/
 RUN mkdir -p /data/model
 
 # 暴露 API 端口
-EXPOSE 8000
+EXPOSE 8909
 
 # 设置默认环境变量
 ENV MODEL_PATH=/data/model \
     MODEL_TIMEOUT_SEC=300 \
     MODEL_NAME=nvidia/canary-1b-v2 \
     USE_FP16=true \
-    API_PORT=8000 \
+    API_PORT=8909 \
     LOG_LEVEL=INFO
 
 # 启动命令
-CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8909"]

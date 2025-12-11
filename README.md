@@ -62,13 +62,13 @@ docker-compose up -d
 
 ```bash
 # 健康检查
-curl http://localhost:8000/health
+curl http://localhost:8909/health
 
 # 查看模型状态
-curl http://localhost:8000/status
+curl http://localhost:8909/status
 
 # 转录音频
-curl -X POST http://localhost:8000/v1/audio/transcriptions \
+curl -X POST http://localhost:8909/v1/audio/transcriptions \
   -F file=@your_audio.wav \
   -F language=en \
   -F response_format=json
@@ -94,7 +94,7 @@ curl -X POST http://localhost:8000/v1/audio/transcriptions \
 ```python
 import requests
 
-url = "http://localhost:8000/v1/audio/transcriptions"
+url = "http://localhost:8909/v1/audio/transcriptions"
 
 # 上传文件并转录
 with open("audio.wav", "rb") as f:
@@ -139,7 +139,7 @@ print(response.text)
 
 ```python
 response = requests.post(
-    "http://localhost:8000/v1/audio/translations",
+    "http://localhost:8909/v1/audio/translations",
     files={"file": open("german_audio.wav", "rb")},
     data={"response_format": "json"}
 )
@@ -152,17 +152,17 @@ print(response.json())
 
 **预加载模型**:
 ```bash
-curl -X POST http://localhost:8000/model/load
+curl -X POST http://localhost:8909/model/load
 ```
 
 **卸载模型**:
 ```bash
-curl -X POST http://localhost:8000/model/unload
+curl -X POST http://localhost:8909/model/unload
 ```
 
 **查看状态**:
 ```bash
-curl http://localhost:8000/status
+curl http://localhost:8909/status
 ```
 
 ## 环境变量配置
@@ -173,7 +173,7 @@ curl http://localhost:8000/status
 | MODEL_NAME | nvidia/canary-1b-v2 | HuggingFace 模型名称 |
 | MODEL_TIMEOUT_SEC | 300 | 模型闲置超时时间 (秒) |
 | USE_FP16 | true | 是否使用 FP16 半精度推理 |
-| API_PORT | 8000 | API 服务端口 |
+| API_PORT | 8909 | API 服务端口 |
 | LOG_LEVEL | INFO | 日志级别 |
 
 ## 项目结构

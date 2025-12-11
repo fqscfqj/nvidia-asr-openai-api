@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: canary-asr-api
     ports:
-      - "8000:8000"
+      - "8909:8909"
     
     # 环境变量配置
     environment:
@@ -20,7 +20,7 @@ services:
       # 是否使用 FP16 半精度推理
       - USE_FP16=true
       # API 服务端口
-      - API_PORT=8000
+      - API_PORT=8909
       # 日志级别
       - LOG_LEVEL=INFO
     
@@ -35,7 +35,7 @@ services:
         reservations:
           devices:
             - driver: nvidia
-              count: 1  # 使用1块GPU, 可改为 "all" 使用全部GPU
+              count: all
               capabilities: [gpu]
     
     # 容器重启策略
@@ -43,7 +43,7 @@ services:
     
     # 健康检查
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8909/health"]
       interval: 30s
       timeout: 10s
       retries: 3
