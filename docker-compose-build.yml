@@ -23,6 +23,8 @@ services:
       - API_PORT=8909
       # 日志级别
       - LOG_LEVEL=INFO
+      # API Key 验证 (可选, 如不设置则不启用验证)
+      # - API_KEY=your-secret-api-key-here
     
     # 挂载卷配置
     volumes:

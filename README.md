@@ -99,6 +99,46 @@ curl -X POST http://localhost:8909/v1/audio/transcriptions \
 
 ## API 文档
 
+API 文档可通过访问 `http://localhost:8909/docs` 查看。
+
+### 获取模型列表
+
+**端点**: `GET /v1/models`
+
+获取当前启用的所有模型列表，兼容 OpenAI API 格式。
+
+**请求示例**:
+
+```bash
+# 无需认证
+curl http://localhost:8909/v1/models
+
+# 如果启用了 API Key 验证
+curl -H "Authorization: Bearer your-api-key" http://localhost:8909/v1/models
+```
+
+**响应示例**:
+
+```json
+{
+  "object": "list",
+  "data": [
+    {
+      "id": "canary-1b-v2",
+      "object": "model",
+      "created": 1699000000,
+      "owned_by": "nvidia"
+    },
+    {
+      "id": "parakeet-tdt-0.6b-v3",
+      "object": "model",
+      "created": 1699000000,
+      "owned_by": "nvidia"
+    }
+  ]
+}
+```
+
 ### 音频转录
 
 **端点**: `POST /v1/audio/transcriptions`
@@ -119,7 +159,7 @@ import requests
 
 url = "http://localhost:8909/v1/audio/transcriptions"
 
-# 使用 Canary 模型转录
+# 基本使用 (无 API Key)
 with open("audio.wav", "rb") as f:
     response = requests.post(
         url,
@@ -133,6 +173,20 @@ with open("audio.wav", "rb") as f:
 
 print(response.json())
 # 输出: {"text": "转录的文本内容..."}
+
+# 使用 API Key 认证
+headers = {"Authorization": "Bearer your-api-key"}
+with open("audio.wav", "rb") as f:
+    response = requests.post(
+        url,
+        headers=headers,
+        files={"file": f},
+        data={
+            "model": "canary-1b-v2",
+            "language": "en",
+            "response_format": "json"
+        }
+    )
 
 # 使用 Parakeet 模型转录
 with open("audio.wav", "rb") as f:
@@ -208,9 +262,57 @@ curl http://localhost:8909/status
 | MODEL_PATH | /data/model | 模型存储路径 |
 | MODEL_NAME | nvidia/canary-1b-v2 | HuggingFace 模型名称 |
 | MODEL_TIMEOUT_SEC | 300 | 模型闲置超时时间 (秒) |
+| ENABLED_MODELS | canary-1b-v2 | 启用的模型列表 (逗号分隔) |
 | USE_FP16 | true | 是否使用 FP16 半精度推理 |
 | API_PORT | 8909 | API 服务端口 |
 | LOG_LEVEL | INFO | 日志级别 |
+| API_KEY | (空) | API Key 认证密钥 (可选) |
+
+### API Key 配置
+
+为了保护 API 安全，可以设置 API Key 进行身份验证：
+
+1. **设置 API Key**:
+
+在 `docker-compose.yml` 中设置 `API_KEY` 环境变量：
+
+```yaml
+environment:
+  - API_KEY=your-secret-api-key-here
+```
+
+或使用 `.env` 文件：
+
+```bash
+# 复制示例文件
+cp .env.example .env
+
+# 编辑 .env 文件，取消注释并设置 API_KEY
+# API_KEY=your-secret-api-key-here
+```
+
+2. **使用 API Key 请求**:
+
+```bash
+# 使用 curl
+curl -H "Authorization: Bearer your-secret-api-key-here" \
+  http://localhost:8909/v1/models
+
+# 使用 Python
+import requests
+
+headers = {"Authorization": "Bearer your-secret-api-key-here"}
+response = requests.get("http://localhost:8909/v1/models", headers=headers)
+```
+
+3. **禁用 API Key**:
+
+如果不需要认证，只需注释掉或删除 `API_KEY` 环境变量即可。
+
+**注意**: 
+- 如果设置了 `API_KEY`，所有 API 端点（除了 `/health` 和 `/`）都需要提供有效的 API Key
+- `/health` 端点不需要认证，用于健康检查
+- 请妥善保管 API Key，不要泄露给他人
 
 ## 项目结构
 

@@ -13,6 +13,8 @@ services:
       - USE_FP16=true
       - API_PORT=8909
       - LOG_LEVEL=INFO
+      # API Key 验证 (可选, 如不设置则不启用验证)
+      # - API_KEY=your-secret-api-key-here
     volumes:
       - ./models:/data/model
     deploy:

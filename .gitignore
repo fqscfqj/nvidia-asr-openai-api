@@ -12,7 +12,7 @@ test/
 __pycache__/
 *.py[cod]
 *.egg-info/
-env/
+.env
 .venv/
 venv/
 

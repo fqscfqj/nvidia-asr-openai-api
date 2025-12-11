@@ -12,13 +12,14 @@ FastAPI 主应用模块
 
 import os
 import sys
-from typing import Optional
+from typing import Optional, List
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Query
+from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Query, Header, Depends
 from fastapi.responses import PlainTextResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from pydantic import BaseModel, Field
 from loguru import logger
 
 from .multi_model_manager import get_multi_model_manager, shutdown_multi_model_manager
@@ -59,6 +60,46 @@ def setup_logging():
 
 
 # ============================================================================
+# API Key 验证
+# ============================================================================
+
+security = HTTPBearer(auto_error=False)
+
+def verify_api_key(credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)):
+    """
+    验证 API Key
+    
+    如果设置了 API_KEY 环境变量, 则需要在请求头中提供有效的 API Key:
+    Authorization: Bearer <API_KEY>
+    
+    如果未设置 API_KEY, 则不进行验证
+    """
+    api_key = os.getenv("API_KEY", "")
+    
+    # 如果未配置 API_KEY, 则不进行验证
+    if not api_key:
+        return None
+    
+    # 检查是否提供了凭证
+    if not credentials:
+        raise HTTPException(
+            status_code=401,
+            detail="未提供 API Key",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # 验证 API Key
+    if credentials.credentials != api_key:
+        raise HTTPException(
+            status_code=401,
+            detail="无效的 API Key",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    return credentials.credentials
+
+
+# ============================================================================
 # 应用生命周期管理
 # ============================================================================
 
@@ -83,6 +124,12 @@ async def lifespan(app: FastAPI):
     logger.info(f"超时时间: {os.getenv('MODEL_TIMEOUT_SEC', '300')}秒")
     logger.info(f"FP16 模式: {os.getenv('USE_FP16', 'true')}")
     logger.info(f"启用模型: {os.getenv('ENABLED_MODELS', 'canary-1b-v2')}")
+    
+    # API Key 配置
+    if os.getenv("API_KEY"):
+        logger.info("API Key 验证: 已启用")
+    else:
+        logger.warning("API Key 验证: 未启用 (建议设置 API_KEY 环境变量)")
     
     # 初始化多模型管理器 (仅创建实例, 不加载模型)
     _ = get_multi_model_manager()
@@ -178,6 +225,20 @@ class OperationResponse(BaseModel):
     message: str
 
 
+class ModelInfo(BaseModel):
+    """模型信息"""
+    id: str = Field(..., description="模型ID")
+    object: str = Field(default="model", description="对象类型")
+    created: int = Field(default=1699000000, description="创建时间戳")
+    owned_by: str = Field(default="nvidia", description="拥有者")
+
+
+class ModelListResponse(BaseModel):
+    """模型列表响应"""
+    object: str = Field(default="list", description="对象类型")
+    data: List[ModelInfo] = Field(..., description="模型列表")
+
+
 # ============================================================================
 # API 路由
 # ============================================================================
@@ -200,6 +261,33 @@ async def health_check():
     return HealthResponse(
         status="healthy",
         message="服务运行正常"
+    )
+
+
+@app.get("/v1/models", response_model=ModelListResponse)
+async def list_models(api_key: Optional[str] = Depends(verify_api_key)):
+    """
+    获取可用模型列表
+    
+    兼容 OpenAI API 的 /v1/models 端点
+    返回当前启用的所有模型
+    """
+    multi_manager = get_multi_model_manager()
+    enabled_models = multi_manager.get_enabled_models()
+    
+    models_data = [
+        ModelInfo(
+            id=model_name,
+            object="model",
+            created=1699000000,
+            owned_by="nvidia"
+        )
+        for model_name in enabled_models
+    ]
+    
+    return ModelListResponse(
+        object="list",
+        data=models_data
     )
 
 
@@ -275,6 +363,7 @@ async def create_transcription(
     response_format: str = Form(default="json", description="响应格式: text, json, srt, vtt, verbose_json"),
     temperature: Optional[float] = Form(default=None, description="采样温度 (兼容参数, 暂不使用)"),
     timestamp_granularities: Optional[str] = Form(default=None, description="时间戳粒度 (兼容参数)"),
+    api_key: Optional[str] = Depends(verify_api_key),
 ):
     """
     音频转录 API
@@ -383,6 +472,7 @@ async def create_translation(
     model: str = Form(default="canary-1b-v2", description="模型名称"),
     response_format: str = Form(default="json", description="响应格式"),
     temperature: Optional[float] = Form(default=None, description="采样温度 (兼容参数)"),
+    api_key: Optional[str] = Depends(verify_api_key),
 ):
     """
     音频翻译 API (翻译为英语)
