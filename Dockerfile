@@ -54,7 +54,14 @@ RUN pip install --no-cache-dir \
     pydub>=0.25.0 \
     aiofiles>=23.0.0
 
-# 3. 最后安装 NeMo (最耗时的部分)
+# 3. 安装其他依赖库
+RUN pip install --no-cache-dir \
+    loguru>=0.7.0 \
+    pydantic>=2.0.0 \
+    httpx>=0.25.0 \
+    huggingface_hub>=0.19.0
+
+# 4. 最后安装 NeMo (最耗时的部分)
 RUN pip install --no-cache-dir nemo_toolkit[asr]>=2.0.0
 
 # 复制应用源码
