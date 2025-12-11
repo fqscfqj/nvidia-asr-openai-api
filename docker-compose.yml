@@ -9,8 +9,7 @@ services:
     environment:
       - MODEL_PATH=/data/model
       - MODEL_TIMEOUT_SEC=300
-      - MODEL_NAME=nvidia/canary-1b-v2
-      - ENABLED_MODELS=canary-1b-v2
+      - ENABLED_MODELS=canary-1b-v2,parakeet-tdt-0.6b-v3
       - USE_FP16=true
       - API_PORT=8909
       - LOG_LEVEL=INFO

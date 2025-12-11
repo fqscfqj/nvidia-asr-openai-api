@@ -15,8 +15,6 @@ services:
       - MODEL_PATH=/data/model
       # 模型闲置超时时间 (秒), 超时后自动卸载释放显存
       - MODEL_TIMEOUT_SEC=300
-      # Hugging Face 模型名称
-      - MODEL_NAME=nvidia/canary-1b-v2
       # 启用的模型列表 (逗号分隔): canary-1b-v2, parakeet-tdt-0.6b-v3, 或同时启用两个
       - ENABLED_MODELS=canary-1b-v2
       # 是否使用 FP16 半精度推理
