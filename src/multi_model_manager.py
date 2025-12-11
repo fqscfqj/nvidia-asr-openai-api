@@ -36,12 +36,12 @@ class MultiModelManager:
     MODEL_CONFIGS = {
         "canary-1b-v2": {
             "hf_name": "nvidia/canary-1b-v2",
-            "local_dir": "canary-1b-v2",
+            "nemo_filename": "canary-1b-v2.nemo",
             "description": "Canary 1B v2 多语言 ASR 模型"
         },
         "parakeet-tdt-0.6b-v3": {
             "hf_name": "nvidia/parakeet-tdt-0.6b-v3",
-            "local_dir": "parakeet-tdt-0.6b-v3",
+            "nemo_filename": "parakeet-tdt-0.6b-v3.nemo",
             "description": "Parakeet TDT 0.6B v3 ASR 模型"
         }
     }
@@ -103,11 +103,11 @@ class MultiModelManager:
                 continue
             
             config = self.MODEL_CONFIGS[model_name]
-            model_path = os.path.join(self.models_base_path, config["local_dir"])
             
             manager = ModelManager(
-                model_path=model_path,
+                model_path=self.models_base_path,
                 model_name=config["hf_name"],
+                nemo_filename=config["nemo_filename"],
                 timeout_sec=self.timeout_sec,
                 use_fp16=self.use_fp16
             )

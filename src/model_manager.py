@@ -46,6 +46,7 @@ class ModelManager:
         self,
         model_path: Optional[str] = None,
         model_name: str = "nvidia/canary-1b-v2",
+        nemo_filename: Optional[str] = None,
         timeout_sec: int = 300,
         use_fp16: bool = True
     ):
@@ -55,6 +56,7 @@ class ModelManager:
         Args:
             model_path: 模型本地存储路径, 默认从环境变量 MODEL_PATH 读取
             model_name: HuggingFace 模型名称
+            nemo_filename: 保存的 .nemo 文件名, 如 'canary-1b-v2.nemo'
             timeout_sec: 模型闲置超时时间(秒), 默认从环境变量读取
             use_fp16: 是否使用 FP16 半精度推理
         """
@@ -65,6 +67,7 @@ class ModelManager:
         # 确保是绝对路径
         self.model_path = os.path.abspath(self.model_path)
         self.model_name = model_name or os.getenv("MODEL_NAME", "nvidia/canary-1b-v2")
+        self.nemo_filename = nemo_filename
         self.timeout_sec = timeout_sec or int(os.getenv("MODEL_TIMEOUT_SEC", "300"))
         self.use_fp16 = use_fp16 if use_fp16 is not None else os.getenv("USE_FP16", "true").lower() == "true"
         
@@ -164,7 +167,13 @@ class ModelManager:
                 model = ASRModel.from_pretrained(model_name=model_source)
                 
                 # 保存模型到本地供后续使用
-                save_path = os.path.join(self.model_path, "canary-1b-v2.nemo")
+                if self.nemo_filename:
+                    save_filename = self.nemo_filename
+                else:
+                    # 如果没有指定文件名，从模型名生成
+                    save_filename = self.model_name.split("/")[-1] + ".nemo"
+                
+                save_path = os.path.join(self.model_path, save_filename)
                 os.makedirs(self.model_path, exist_ok=True)
                 try:
                     model.save_to(save_path)

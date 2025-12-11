@@ -1,0 +1,118 @@
+nohup: ignoring input
+INFO:     Started server process [2507769]
+INFO:     Waiting for application startup.
+[32m2025-12-11 14:49:24[0m | [1mINFO    [0m | [36msrc.main[0m:[36msetup_logging[0m:[36m58[0m | [1m日志系统已初始化, 级别: INFO[0m
+[32m2025-12-11 14:49:24[0m | [1mINFO    [0m | [36msrc.main[0m:[36mlifespan[0m:[36m80[0m | [1m=== NVIDIA ASR to OpenAI API 服务启动 ===[0m
+[32m2025-12-11 14:49:24[0m | [1mINFO    [0m | [36msrc.main[0m:[36mlifespan[0m:[36m82[0m | [1m模型路径: /vol2/1000/vscode/workspace/canary_asr_docker/models[0m
+[32m2025-12-11 14:49:24[0m | [1mINFO    [0m | [36msrc.main[0m:[36mlifespan[0m:[36m83[0m | [1m超时时间: 300秒[0m
+[32m2025-12-11 14:49:24[0m | [1mINFO    [0m | [36msrc.main[0m:[36mlifespan[0m:[36m84[0m | [1mFP16 模式: true[0m
+[32m2025-12-11 14:49:24[0m | [1mINFO    [0m | [36msrc.main[0m:[36mlifespan[0m:[36m85[0m | [1m启用模型: canary-1b-v2[0m
+[32m2025-12-11 14:49:24[0m | [1mINFO    [0m | [36msrc.model_manager[0m:[36m__init__[0m:[36m93[0m | [1m模型管理器初始化完成 - 模型路径: /vol2/1000/vscode/workspace/canary_asr_docker/models, 超时时间: 300秒[0m
+[32m2025-12-11 14:49:24[0m | [1mINFO    [0m | [36msrc.multi_model_manager[0m:[36m_initialize_managers[0m:[36m116[0m | [1m已初始化模型管理器: canary-1b-v2 -> Canary 1B v2 多语言 ASR 模型[0m
+[32m2025-12-11 14:49:24[0m | [1mINFO    [0m | [36msrc.multi_model_manager[0m:[36m__init__[0m:[36m92[0m | [1m多模型管理器初始化完成 - 基础路径: /vol2/1000/vscode/workspace/canary_asr_docker/models, 启用模型: canary-1b-v2[0m
+[32m2025-12-11 14:49:24[0m | [1mINFO    [0m | [36msrc.main[0m:[36mlifespan[0m:[36m89[0m | [1m多模型管理器已就绪 (懒加载模式, 首次请求时加载对应模型)[0m
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8909 (Press CTRL+C to quit)
+[32m2025-12-11 14:50:19[0m | [1mINFO    [0m | [36msrc.main[0m:[36mcreate_transcription[0m:[36m350[0m | [1m收到转录请求 - 文件: OSR_us_000_0059_8k.wav, 模型: canary-1b-v2, 大小: 891442 bytes, 语言: en, 格式: json[0m
+[32m2025-12-11 14:50:19[0m | [1mINFO    [0m | [36msrc.engine[0m:[36m__init__[0m:[36m63[0m | [1m转录引擎初始化完成 - 使用模型: canary-1b-v2[0m
+[32m2025-12-11 14:50:19[0m | [1mINFO    [0m | [36msrc.engine[0m:[36mtranscribe[0m:[36m109[0m | [1m开始转录 - 文件: /tmp/tmpf6_j5j0o.wav, 源语言: en, 目标语言: en, 格式: json, 时间戳: True[0m
+[32m2025-12-11 14:50:19[0m | [1mINFO    [0m | [36msrc.model_manager[0m:[36m_load_model[0m:[36m146[0m | [1m开始加载 NVIDIA ASR 模型...[0m
+[NeMo W 2025-12-11 14:50:21 nemo_logging:405] Megatron num_microbatches_calculator not found, using Apex version.
+OneLogger: Setting error_handling_strategy to DISABLE_QUIETLY_AND_REPORT_METRIC_ERROR for rank (rank=0) with OneLogger disabled. To override: explicitly set error_handling_strategy parameter.
+No exporters were provided. This means that no telemetry data will be collected.
+[32m2025-12-11 14:50:22[0m | [1mINFO    [0m | [36msrc.model_manager[0m:[36m_check_local_model_exists[0m:[36m111[0m | [1m检测到本地模型文件: /vol2/1000/vscode/workspace/canary_asr_docker/models[0m
+[32m2025-12-11 14:50:22[0m | [1mINFO    [0m | [36msrc.model_manager[0m:[36m_load_model[0m:[36m162[0m | [1m从本地文件加载模型: /vol2/1000/vscode/workspace/canary_asr_docker/models/canary-1b-v2.nemo[0m
+[NeMo I 2025-12-11 14:50:25 nemo_logging:393] Tokenizer CanaryBPETokenizer initialized with 16384 tokens
+[NeMo W 2025-12-11 14:50:25 nemo_logging:405] If you intend to do training or fine-tuning, please call the ModelPT.setup_training_data() method and provide a valid configuration file to setup the train data loader.
+    Train config : 
+    use_lhotse: true
+    skip_missing_manifest_entries: true
+    input_cfg: null
+    tarred_audio_filepaths: null
+    manifest_filepath: null
+    sample_rate: 16000
+    shuffle: true
+    num_workers: 4
+    pin_memory: true
+    prompt_format: canary2
+    max_duration: 40.0
+    min_duration: 0.01
+    text_field: answer
+    lang_field: target_lang
+    use_bucketing: true
+    max_tps: null
+    bucket_duration_bins: null
+    bucket_batch_size: null
+    num_buckets: null
+    bucket_buffer_size: 20000
+    shuffle_buffer_size: 10000
+    
+[NeMo W 2025-12-11 14:50:25 nemo_logging:405] If you intend to do validation, please call the ModelPT.setup_validation_data() or ModelPT.setup_multiple_validation_data() method and provide a valid configuration file to setup the validation data loader(s). 
+    Validation config : 
+    use_lhotse: true
+    prompt_format: canary2
+    manifest_filepath: null
+    sample_rate: 16000
+    batch_size: 4
+    shuffle: true
+    max_duration: 40.0
+    min_duration: 0.1
+    num_workers: 2
+    pin_memory: true
+    text_field: answer
+    lang_field: target_lang
+    
+[NeMo I 2025-12-11 14:50:25 nemo_logging:393] PADDING: 0
+Error getting class at nemo.collections.asr.modules.transformer.get_nemo_transformer: Located non-class of type 'function' while loading 'nemo.collections.asr.modules.transformer.get_nemo_transformer'
+[NeMo I 2025-12-11 14:50:37 nemo_logging:393] Tokenizer SentencePieceTokenizer initialized with 16384 tokens
+[NeMo W 2025-12-11 14:50:40 nemo_logging:405] If you intend to do training or fine-tuning, please call the ModelPT.setup_training_data() method and provide a valid configuration file to setup the train data loader.
+    Train config : 
+    use_lhotse: true
+    skip_missing_manifest_entries: true
+    input_cfg: null
+    tarred_audio_filepaths: null
+    manifest_filepath: null
+    sample_rate: 16000
+    shuffle: true
+    num_workers: 2
+    pin_memory: true
+    max_duration: 40.0
+    min_duration: 0.1
+    text_field: answer
+    batch_duration: null
+    max_tps: null
+    use_bucketing: true
+    bucket_duration_bins: null
+    bucket_batch_size: null
+    num_buckets: null
+    bucket_buffer_size: 20000
+    shuffle_buffer_size: 10000
+    
+[NeMo W 2025-12-11 14:50:40 nemo_logging:405] If you intend to do validation, please call the ModelPT.setup_validation_data() or ModelPT.setup_multiple_validation_data() method and provide a valid configuration file to setup the validation data loader(s). 
+    Validation config : 
+    use_lhotse: true
+    manifest_filepath: null
+    sample_rate: 16000
+    batch_size: 16
+    shuffle: false
+    max_duration: 40.0
+    min_duration: 0.1
+    num_workers: 2
+    pin_memory: true
+    text_field: answer
+    
+[NeMo I 2025-12-11 14:50:40 nemo_logging:393] PADDING: 0
+[NeMo I 2025-12-11 14:50:46 nemo_logging:393] Model EncDecCTCModelBPE was successfully restored from /vol2/1000/vscode/workspace/canary_asr_docker/models/canary-1b-v2.nemo.
+[NeMo I 2025-12-11 14:50:48 nemo_logging:393] Model EncDecMultiTaskModel was successfully restored from /vol2/1000/vscode/workspace/canary_asr_docker/models/canary-1b-v2.nemo.
+[32m2025-12-11 14:50:48[0m | [1mINFO    [0m | [36msrc.model_manager[0m:[36m_load_model[0m:[36m187[0m | [1m模型已移动到 GPU: NVIDIA GeForce RTX 3090[0m
+[32m2025-12-11 14:50:48[0m | [1mINFO    [0m | [36msrc.model_manager[0m:[36m_load_model[0m:[36m197[0m | [1m已启用 FP16 半精度推理[0m
+[32m2025-12-11 14:50:48[0m | [1mINFO    [0m | [36msrc.model_manager[0m:[36m_load_model[0m:[36m200[0m | [1m模型加载完成, 耗时: 29.03秒[0m
+[32m2025-12-11 14:50:48[0m | [1mINFO    [0m | [36msrc.model_manager[0m:[36m_monitor_timeout[0m:[36m249[0m | [1m超时监控线程已启动, 检查间隔: 30秒[0m
+[NeMo W 2025-12-11 14:50:48 nemo_logging:405] The following configuration keys are ignored by Lhotse dataloader: trim_silence,enable_chunking
+[NeMo W 2025-12-11 14:50:48 nemo_logging:405] You are using a non-tarred dataset and requested tokenization during data sampling (pretokenize=True). This will cause the tokenization to happen in the main (GPU) process,possibly impacting the training speed if your tokenizer is very large.If the impact is noticable, set pretokenize=False in dataloader config.(note: that will disable token-per-second filtering and 2D bucketing features)
+Transcribing: 0it [00:00, ?it/s]
+Transcribing:   0%|          | 0/1 [00:00<?, ?it/s][A
+Transcribing: 100%|██████████| 1/1 [00:00<00:00,  9.52it/s][ATranscribing: 100%|██████████| 1/1 [00:00<00:00,  9.49it/s]
+Transcribing: 1it [00:01,  1.45s/it]Transcribing: 1it [00:01,  1.45s/it]
+[32m2025-12-11 14:50:50[0m | [1mINFO    [0m | [36msrc.engine[0m:[36mtranscribe[0m:[36m148[0m | [1m转录完成 - 文本长度: 393, 分段数: 10[0m
+INFO:     127.0.0.1:55528 - "POST /v1/audio/transcriptions HTTP/1.1" 200 OK
