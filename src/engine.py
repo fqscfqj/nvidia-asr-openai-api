@@ -16,7 +16,7 @@ from pathlib import Path
 
 from loguru import logger
 
-from .model_manager import get_model_manager
+from .multi_model_manager import get_multi_model_manager
 from .utils import (
     segments_to_srt,
     segments_to_vtt,
@@ -51,10 +51,16 @@ class TranscriptionEngine:
     # 支持的响应格式
     SUPPORTED_FORMATS = {"text", "json", "srt", "vtt", "verbose_json"}
     
-    def __init__(self):
-        """初始化转录引擎"""
-        self.model_manager = get_model_manager()
-        logger.info("转录引擎初始化完成")
+    def __init__(self, model_name: str = "canary-1b-v2"):
+        """
+        初始化转录引擎
+        
+        Args:
+            model_name: 使用的模型名称，如 "canary-1b-v2" 或 "parakeet-tdt-0.6b-v3"
+        """
+        self.model_name = model_name
+        self.multi_manager = get_multi_model_manager()
+        logger.info(f"转录引擎初始化完成 - 使用模型: {model_name}")
     
     def transcribe(
         self,
@@ -110,9 +116,9 @@ class TranscriptionEngine:
             # 获取音频时长
             duration = get_audio_duration(audio_path)
             
-            # 使用模型进行推理
-            with self.model_manager.get_model() as model:
-                # 调用 Canary 模型的 transcribe 方法
+            # 使用指定模型进行推理
+            with self.multi_manager.get_model(self.model_name) as model:
+                # 调用模型的 transcribe 方法
                 output = model.transcribe(
                     [audio_path],
                     source_lang=source_lang,
@@ -322,16 +328,14 @@ class TranslationEngine:
 _transcription_engine: Optional[TranscriptionEngine] = None
 
 
-def get_transcription_engine() -> TranscriptionEngine:
+def get_transcription_engine(model_name: str = "canary-1b-v2") -> TranscriptionEngine:
     """
-    获取转录引擎单例实例
+    获取转录引擎实例
     
+    Args:
+        model_name: 模型名称
+        
     Returns:
         TranscriptionEngine 实例
     """
-    global _transcription_engine
-    
-    if _transcription_engine is None:
-        _transcription_engine = TranscriptionEngine()
-    
-    return _transcription_engine
+    return TranscriptionEngine(model_name=model_name)

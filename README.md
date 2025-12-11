@@ -1,15 +1,38 @@
 # Canary ASR Docker API
 
-基于 NVIDIA Canary-1B-v2 模型的 OpenAI Whisper 兼容语音识别 API 服务。
+基于 NVIDIA Canary-1B-v2 和 Parakeet-TDT-0.6B-v3 模型的 OpenAI Whisper 兼容语音识别 API 服务。
 
 ## 功能特性
 
 - 🚀 **懒加载 (Lazy Loading)**: 启动时不加载模型，首次请求时才加载到 GPU，节省资源
 - ⏱️ **自动卸载 (Auto-Unload)**: 模型闲置超时后自动释放 GPU 显存
 - 🔒 **线程安全**: 确保并发请求安全，模型使用中不会被卸载
-- 🎯 **高精度识别**: 基于 10 亿参数 Canary 模型，支持 25 种欧洲语言
+- 🎯 **多模型支持**: 支持 Canary-1B-v2 和 Parakeet-TDT-0.6B-v3，可通过环境变量或 API 参数选择
 - 📝 **多格式输出**: 支持 text/json/srt/vtt/verbose_json 格式
 - 🔌 **OpenAI 兼容**: 完全兼容 OpenAI Whisper API 接口
+
+## 支持的模型
+
+| 模型名称 | 模型 ID | 参数量 | 支持语言 | 特点 |
+|---------|---------|-------|---------|------|
+| Canary-1B-v2 | canary-1b-v2 | 10 亿 | 25 种欧洲语言 | 高精度识别，支持多语言 ASR 和 AST |
+| Parakeet-TDT-0.6B-v3 | parakeet-tdt-0.6b-v3 | 6 亿 | 主要英语 | 轻量级快速模型 |
+
+### 配置启用的模型
+
+在 `docker-compose.yml` 中设置 `ENABLED_MODELS` 环境变量：
+
+```yaml
+environment:
+  # 仅启用 Canary 模型
+  - ENABLED_MODELS=canary-1b-v2
+  
+  # 仅启用 Parakeet 模型
+  # - ENABLED_MODELS=parakeet-tdt-0.6b-v3
+  
+  # 同时启用两个模型 (逗号分隔)
+  # - ENABLED_MODELS=canary-1b-v2,parakeet-tdt-0.6b-v3
+```
 
 ## 支持的语言
 
@@ -85,7 +108,7 @@ curl -X POST http://localhost:8909/v1/audio/transcriptions \
 | 参数 | 类型 | 必填 | 说明 |
 |-----|------|-----|------|
 | file | file | 是 | 音频文件 (支持 wav, flac, mp3, m4a 等) |
-| model | string | 否 | 模型名称 (兼容参数) |
+| model | string | 否 | 模型名称: canary-1b-v2 或 parakeet-tdt-0.6b-v3 (默认: canary-1b-v2) |
 | language | string | 否 | 语言代码，如 'en', 'de' |
 | response_format | string | 否 | 响应格式: text, json, srt, vtt, verbose_json |
 
@@ -96,12 +119,13 @@ import requests
 
 url = "http://localhost:8909/v1/audio/transcriptions"
 
-# 上传文件并转录
+# 使用 Canary 模型转录
 with open("audio.wav", "rb") as f:
     response = requests.post(
         url,
         files={"file": f},
         data={
+            "model": "canary-1b-v2",
             "language": "en",
             "response_format": "json"
         }
@@ -109,6 +133,18 @@ with open("audio.wav", "rb") as f:
 
 print(response.json())
 # 输出: {"text": "转录的文本内容..."}
+
+# 使用 Parakeet 模型转录
+with open("audio.wav", "rb") as f:
+    response = requests.post(
+        url,
+        files={"file": f},
+        data={
+            "model": "parakeet-tdt-0.6b-v3",
+            "language": "en",
+            "response_format": "json"
+        }
+    )
 ```
 
 **获取 SRT 字幕**:

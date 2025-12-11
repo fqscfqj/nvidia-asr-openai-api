@@ -21,6 +21,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from loguru import logger
 
+from .multi_model_manager import get_multi_model_manager, shutdown_multi_model_manager
 from .model_manager import get_model_manager, shutdown_model_manager
 from .engine import get_transcription_engine
 
@@ -68,7 +69,7 @@ async def lifespan(app: FastAPI):
     
     启动时:
     - 初始化日志
-    - 创建模型管理器 (但不加载模型, 实现懒加载)
+    - 创建多模型管理器 (但不加载模型, 实现懒加载)
     
     关闭时:
     - 卸载模型
@@ -81,16 +82,17 @@ async def lifespan(app: FastAPI):
     logger.info(f"模型路径: {os.getenv('MODEL_PATH', default_path)}")
     logger.info(f"超时时间: {os.getenv('MODEL_TIMEOUT_SEC', '300')}秒")
     logger.info(f"FP16 模式: {os.getenv('USE_FP16', 'true')}")
+    logger.info(f"启用模型: {os.getenv('ENABLED_MODELS', 'canary-1b-v2')}")
     
-    # 初始化模型管理器 (仅创建实例, 不加载模型)
-    _ = get_model_manager()
-    logger.info("模型管理器已就绪 (懒加载模式, 首次请求时加载模型)")
+    # 初始化多模型管理器 (仅创建实例, 不加载模型)
+    _ = get_multi_model_manager()
+    logger.info("多模型管理器已就绪 (懒加载模式, 首次请求时加载对应模型)")
     
     yield
     
     # 关闭时执行
     logger.info("=== 正在关闭 API 服务 ===")
-    shutdown_model_manager()
+    shutdown_multi_model_manager()
     logger.info("API 服务已关闭")
 
 
@@ -268,7 +270,7 @@ async def unload_model():
 @app.post("/v1/audio/transcriptions")
 async def create_transcription(
     file: UploadFile = File(..., description="要转录的音频文件"),
-    model: str = Form(default="canary-1b-v2", description="模型名称 (兼容参数, 实际使用 Canary)"),
+    model: str = Form(default="canary-1b-v2", description="模型名称: canary-1b-v2 或 parakeet-tdt-0.6b-v3"),
     language: Optional[str] = Form(default=None, description="音频语言代码, 如 'en', 'zh'"),
     response_format: str = Form(default="json", description="响应格式: text, json, srt, vtt, verbose_json"),
     temperature: Optional[float] = Form(default=None, description="采样温度 (兼容参数, 暂不使用)"),
@@ -308,6 +310,15 @@ async def create_transcription(
     print(response.json())
     ```
     """
+    # 验证模型名称
+    multi_manager = get_multi_model_manager()
+    enabled_models = multi_manager.get_enabled_models()
+    if model not in enabled_models:
+        raise HTTPException(
+            status_code=400,
+            detail=f"不支持的模型: {model}, 当前启用的模型: {enabled_models}"
+        )
+    
     # 验证响应格式
     valid_formats = {"text", "json", "srt", "vtt", "verbose_json"}
     if response_format not in valid_formats:
@@ -338,12 +349,13 @@ async def create_transcription(
         
         logger.info(
             f"收到转录请求 - 文件: {file.filename}, "
+            f"模型: {model}, "
             f"大小: {len(audio_bytes)} bytes, "
             f"语言: {language}, 格式: {response_format}"
         )
         
         # 获取转录引擎并执行转录
-        engine = get_transcription_engine()
+        engine = get_transcription_engine(model_name=model)
         result = engine.transcribe_bytes(
             audio_bytes=audio_bytes,
             filename=file.filename or "audio.wav",
@@ -407,7 +419,7 @@ async def create_translation(
         )
         
         # 翻译任务: 源语言设为英语 (会自动检测), 目标语言设为英语
-        engine = get_transcription_engine()
+        engine = get_transcription_engine(model_name=model)
         result = engine.transcribe_bytes(
             audio_bytes=audio_bytes,
             filename=file.filename or "audio.wav",
