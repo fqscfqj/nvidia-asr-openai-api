@@ -3,7 +3,7 @@
 """
 多模型测试脚本
 
-测试 Canary-1B-v2 模型的转录功能
+测试 canary-1b-v2 模型的转录功能
 """
 
 import requests
@@ -13,9 +13,9 @@ from pathlib import Path
 BASE_URL = "http://localhost:8909"
 
 def test_canary_model():
-    """测试 Canary-1B-v2 模型"""
-    print("=" * 60)
-    print("测试 Canary-1B-v2 模型")
+    """测试 canary-1b-v2 模型"""
+    print("="*60)
+    print("测试 canary-1b-v2 模型")
     print("=" * 60)
     
     audio_file = Path("test/OSR_us_000_0059_8k.wav")

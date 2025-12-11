@@ -6,7 +6,7 @@ fastapi>=0.104.0
 uvicorn[standard]>=0.24.0
 python-multipart>=0.0.6
 
-# NVIDIA NeMo ASR 工具包 (包含 Canary 模型支持)
+# NVIDIA NeMo ASR 工具包 (包含 canary-1b-v2 和 parakeet-tdt-0.6b-v3 模型支持)
 nemo_toolkit[asr]>=2.0.0
 
 # 音频处理

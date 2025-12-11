@@ -1,13 +1,13 @@
-# Canary ASR Docker API
+# NVIDIA ASR to OpenAI API
 
-基于 NVIDIA Canary-1B-v2 和 Parakeet-TDT-0.6B-v3 模型的 OpenAI Whisper 兼容语音识别 API 服务。
+基于 NVIDIA canary-1b-v2 和 parakeet-tdt-0.6b-v3 模型的 OpenAI Whisper 兼容语音识别 API 服务。
 
 ## 功能特性
 
 - 🚀 **懒加载 (Lazy Loading)**: 启动时不加载模型，首次请求时才加载到 GPU，节省资源
 - ⏱️ **自动卸载 (Auto-Unload)**: 模型闲置超时后自动释放 GPU 显存
 - 🔒 **线程安全**: 确保并发请求安全，模型使用中不会被卸载
-- 🎯 **多模型支持**: 支持 Canary-1B-v2 和 Parakeet-TDT-0.6B-v3，可通过环境变量或 API 参数选择
+- 🎯 **多模型支持**: 支持 canary-1b-v2 和 parakeet-tdt-0.6b-v3，可通过环境变量或 API 参数选择
 - 📝 **多格式输出**: 支持 text/json/srt/vtt/verbose_json 格式
 - 🔌 **OpenAI 兼容**: 完全兼容 OpenAI Whisper API 接口
 
@@ -15,8 +15,8 @@
 
 | 模型名称 | 模型 ID | 参数量 | 支持语言 | 特点 |
 |---------|---------|-------|---------|------|
-| Canary-1B-v2 | canary-1b-v2 | 10 亿 | 25 种欧洲语言 | 高精度识别，支持多语言 ASR 和 AST |
-| Parakeet-TDT-0.6B-v3 | parakeet-tdt-0.6b-v3 | 6 亿 | 主要英语 | 轻量级快速模型 |
+| NVIDIA Canary 1B v2 | canary-1b-v2 | 10 亿 | 25 种欧洲语言 | 高精度识别，支持多语言 ASR 和 AST |
+| NVIDIA Parakeet TDT 0.6B v3 | parakeet-tdt-0.6b-v3 | 6 亿 | 主要英语 | 轻量级快速模型 |
 
 ### 配置启用的模型
 
@@ -64,7 +64,7 @@ environment:
 
 ```bash
 git clone <repository-url>
-cd canary_asr_docker
+cd nvidia-asr-openai-api
 ```
 
 ### 2. 创建模型目录
@@ -215,7 +215,7 @@ curl http://localhost:8909/status
 ## 项目结构
 
 ```
-canary_asr_docker/
+nvidia-asr-openai-api/
 ├── docker-compose.yml    # Docker Compose 配置
 ├── Dockerfile            # Docker 镜像构建文件
 ├── requirements.txt      # Python 依赖
@@ -249,10 +249,11 @@ A: 检查网络连接，或手动下载模型文件放到 `models/` 目录。
 
 ## 许可证
 
-本项目遵循 MIT 许可证。NVIDIA Canary 模型遵循 CC-BY-4.0 许可证。
+本项目遵循 MIT 许可证。NVIDIA ASR 模型遵循 CC-BY-4.0 许可证。
 
 ## 致谢
 
 - [NVIDIA NeMo](https://github.com/NVIDIA/NeMo)
-- [NVIDIA Canary-1B-v2](https://huggingface.co/nvidia/canary-1b-v2)
+- [NVIDIA canary-1b-v2](https://huggingface.co/nvidia/canary-1b-v2)
+- [NVIDIA parakeet-tdt-0.6b-v3](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3)
 - [FastAPI](https://fastapi.tiangolo.com/)

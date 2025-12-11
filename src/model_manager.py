@@ -140,7 +140,7 @@ class ModelManager:
         Returns:
             加载好的 ASR 模型实例
         """
-        logger.info("开始加载 Canary ASR 模型...")
+        logger.info("开始加载 NVIDIA ASR 模型...")
         start_time = time.time()
         
         try:

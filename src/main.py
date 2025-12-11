@@ -77,7 +77,7 @@ async def lifespan(app: FastAPI):
     """
     # 启动时执行
     setup_logging()
-    logger.info("=== Canary ASR API 服务启动 ===")
+    logger.info("=== NVIDIA ASR to OpenAI API 服务启动 ===")
     default_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "models")
     logger.info(f"模型路径: {os.getenv('MODEL_PATH', default_path)}")
     logger.info(f"超时时间: {os.getenv('MODEL_TIMEOUT_SEC', '300')}秒")
@@ -101,11 +101,12 @@ async def lifespan(app: FastAPI):
 # ============================================================================
 
 app = FastAPI(
-    title="Canary ASR API",
+    title="NVIDIA ASR to OpenAI API",
+    version="1.0.0",
     description="""
-## NVIDIA Canary-1B-v2 语音识别 API
+## NVIDIA ASR to OpenAI API
 
-兼容 OpenAI Whisper API 的语音转录服务, 基于 NVIDIA Canary-1B-v2 模型。
+兼容 OpenAI Whisper API 的语音转录服务，支持 canary-1b-v2 和 parakeet-tdt-0.6b-v3 模型。
 
 ### 特性
 - 🚀 **懒加载**: 首次请求时才加载模型, 节省资源
@@ -116,7 +117,6 @@ app = FastAPI(
 ### 支持的语言
 en, de, fr, es, it, pt, nl, pl, ru, uk, cs, sk, bg, hr, da, fi, el, hu, ro, sv, et, lv, lt, sl, mt
     """,
-    version="1.0.0",
     lifespan=lifespan,
 )
 
@@ -187,7 +187,7 @@ async def root():
     """
     根路由 - 返回服务信息
     """
-    return "Canary ASR API - 兼容 OpenAI Whisper API 的语音识别服务"
+    return "NVIDIA ASR to OpenAI API - 兼容 OpenAI Whisper API 的语音识别服务"
 
 
 @app.get("/health", response_model=HealthResponse)
@@ -284,7 +284,7 @@ async def create_transcription(
     ## 请求参数
     
     - **file**: 音频文件 (支持 wav, flac, mp3, m4a 等格式)
-    - **model**: 模型名称 (兼容参数, 实际使用 Canary-1B-v2)
+    - **model**: 模型名称: canary-1b-v2 或 parakeet-tdt-0.6b-v3
     - **language**: 音频语言代码, 如 'en', 'de', 'fr' 等
     - **response_format**: 响应格式
         - `text`: 纯文本

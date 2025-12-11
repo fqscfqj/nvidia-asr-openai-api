@@ -1,11 +1,11 @@
 version: '3.8'
 
 services:
-  canary-asr:
+  nvidia-asr:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: canary-asr-api
+    container_name: nvidia-asr-openai-api
     ports:
       - "8909:8909"
     
@@ -54,4 +54,4 @@ services:
 # 网络配置 (可选)
 networks:
   default:
-    name: canary-asr-network
+    name: nvidia-asr-openai-network
