@@ -22,6 +22,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # - libsndfile1: 音频文件读取
 # - sox: 音频处理工具
 # - curl: 健康检查
+# - build-essential: 编译工具链（gcc, g++, make）用于编译 Python C 扩展
 # 预配置时区避免交互式提示
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
     apt-get update && apt-get install -y --no-install-recommends \
@@ -31,6 +32,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone &
     sox \
     curl \
     git \
+    build-essential \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
