@@ -3,8 +3,8 @@
 #
 # 基于 PyTorch 官方 CUDA 镜像, 集成 NeMo 框架和 FastAPI 服务
 
-# 基础镜像: PyTorch 2.1 + CUDA 12.1 + cuDNN 8
-FROM pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime
+# 基础镜像: PyTorch 2.5 + CUDA 12.4 + cuDNN 9
+FROM pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime
 
 # 设置工作目录
 WORKDIR /app
